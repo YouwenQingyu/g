@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#0B0E14"/>
+<title>第七码头没有潮汐</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overflow:hidden;background:#05070b}
+body{font:15px/1.65 -apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;color:#e6edf6}
+#app{height:100%;display:flex;flex-direction:column;background:#0B0E14;overflow:hidden}
+
+/* ---------- 状态栏 ---------- */
+.statusbar{flex:0 0 26px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:11px;color:#8b9bb4;letter-spacing:.4px;background:#090c12}
+.statusbar .r{display:flex;align-items:center;gap:7px}
+.sig{display:flex;align-items:flex-end;gap:2px;height:11px}
+.sig i{display:block;width:3px;background:#8b9bb4;border-radius:1px}
+.sig i:nth-child(1){height:4px}.sig i:nth-child(2){height:6px}.sig i:nth-child(3){height:8px}.sig i:nth-child(4){height:11px;opacity:.35}
+.batt{width:20px;height:10px;border:1px solid #8b9bb4;border-radius:2px;position:relative;padding:1px}
+.batt::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:4px;background:#8b9bb4;border-radius:0 1px 1px 0}
+.batt em{display:block;height:100%;width:62%;background:#8b9bb4;border-radius:1px}
+
+/* ---------- 工具栏 ---------- */
+.toolbar{flex:0 0 auto;display:flex;align-items:center;gap:5px;padding:6px 8px 8px;background:#0B0E14;border-bottom:1px solid #16202e}
+.tb{width:30px;height:30px;flex:0 0 30px;border:0;background:transparent;color:#c8d6e8;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0}
+.tb:disabled{color:#33404f}
+.tb:active{background:#18212e}
+.addr{flex:1;min-width:0;display:flex;align-items:center;gap:6px;height:32px;background:#161d29;border:1px solid #1f2a3a;border-radius:16px;padding:0 12px;font-size:12px;color:#8b9bb4;overflow:hidden;white-space:nowrap}
+.addr .lk{flex:0 0 auto;color:#5f7285;display:flex}
+.addr .dom{color:#dbe7f5;overflow:hidden;text-overflow:ellipsis}
+.addr .path{color:#6d8098;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.loadbar{height:2px;background:#16202e;flex:0 0 2px;position:relative;overflow:hidden}
+.loadbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2f6fed,#4ea3ff);opacity:0;transition:opacity .3s}
+
+/* ---------- 内容区 ---------- */
+.view{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff}
+.site{min-height:100%;padding:0 0 40px}
+
+/* ---------- 底部工具栏 ---------- */
+.bottom{flex:0 0 50px;display:flex;align-items:stretch;background:#090c12;border-top:1px solid #16202e;padding-bottom:env(safe-area-inset-bottom)}
+.bottom button{flex:1;border:0;background:transparent;color:#7f90a8;font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative;padding:0}
+.bottom button:disabled{color:#38434f}
+.bottom button.arm{color:#f0a196}
+.bottom button.arm .ic{transform:rotate(-90deg)}
+.bottom button .ic{font-size:16px;line-height:1}
+.bottom button .bd{position:absolute;top:6px;right:calc(50% - 18px);min-width:15px;height:15px;border-radius:8px;background:#2f6fed;color:#fff;font-size:9px;line-height:15px;text-align:center;padding:0 4px}
+
+/* ---------- 通用页面元件 ---------- */
+.p{padding:0 18px;margin:10px 0}
+.h1{font-size:19px;line-height:1.45;font-weight:700;margin:14px 18px 8px}
+.h2{font-size:15px;font-weight:700;margin:16px 18px 6px}
+.meta{font-size:12px;color:#8b8b8b;padding:0 18px;margin-bottom:12px}
+.card{margin:12px 14px;padding:14px;border-radius:12px;background:rgba(0,0,0,.03)}
+.card.dark{background:#161b22;color:#c9d4e2}
+.ttl{font-size:12px;letter-spacing:1px;font-weight:700;margin-bottom:8px;opacity:.75}
+.row{display:flex;gap:8px;margin:10px 14px}
+.inp{flex:1;min-width:0;height:40px;border-radius:10px;border:1px solid #c9cdd4;background:#fff;color:#1a1a1a;padding:0 12px;font-size:14px;outline:none}
+.inp:focus{border-color:#2f6fed}
+.btn{height:40px;padding:0 16px;border:0;border-radius:10px;background:#2f6fed;color:#fff;font-size:14px;font-weight:600}
+.btn:active{opacity:.8}
+.btn.ghost{background:transparent;color:#2f6fed;border:1px solid #2f6fed}
+.btn.wide{display:block;width:calc(100% - 28px);margin:12px 14px}
+.link{color:#2f6fed;text-decoration:underline;text-underline-offset:2px}
+.small{font-size:12px;color:#8b8b8b}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed rgba(0,0,0,.12);font-size:13px}
+.kv:last-child{border-bottom:0}
+.kv b{font-weight:600}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th,.tbl td{padding:6px 4px;text-align:left;border-bottom:1px solid rgba(0,0,0,.1)}
+.tbl th{font-weight:600;opacity:.7;font-size:11.5px}
+.hl{background:#fff2a8;color:#111;padding:0 2px;border-radius:2px}
+.warnbox{margin:12px 14px;padding:12px 14px;border-left:3px solid #d84a3a;background:#fff3f0;color:#7a2620;font-size:13px;border-radius:0 10px 10px 0}
+.okbox{margin:12px 14px;padding:12px 14px;border-left:3px solid #2f9e58;background:#eefaf2;color:#1d5c36;font-size:13px;border-radius:0 10px 10px 0}
+.tag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:20px;background:rgba(0,0,0,.07);margin-right:6px;letter-spacing:.3px}
+
+/* ---------- 新闻网 ---------- */
+.site.news{background:#fff;color:#1a1a1a}
+.nbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#c8261c;color:#fff}
+.nbar .logo{font-size:17px;font-weight:800;letter-spacing:1px}
+.nbar .nsub{font-size:11px;opacity:.85}
+.nav{display:flex;gap:16px;padding:9px 16px;border-bottom:1px solid #e6e6e6;font-size:13px;color:#555;overflow:auto;white-space:nowrap}
+.nav span{padding-bottom:2px}
+.nav .on{color:#c8261c;font-weight:700;border-bottom:2px solid #c8261c}
+.lead{font-size:14.5px;color:#333}
+.cmt{padding:11px 0;border-bottom:1px solid #eee;font-size:13.5px}
+.cmt .who{font-size:12px;color:#888;margin-bottom:3px}
+.cmt.tap{position:relative}
+.cmt.tap::after{content:"展开";position:absolute;right:0;top:11px;font-size:11px;color:#2f6fed}
+.cmt.tap.open::after{content:"已展开";color:#9aa4b2}
+.fold{display:block;width:calc(100% - 28px);margin:10px 14px;height:38px;border:1px dashed #b9c8da;border-radius:9px;background:#f6f9fd;color:#3a5a80;font-size:13px;font-family:inherit}
+.fold:active{background:#e6eefa}
+.evgot{margin:8px 0 0;padding:8px 10px;border:1px dashed #b9c8da;border-radius:9px;background:#f2f7fd;color:#3a5a80;font-size:12.5px;text-align:center}
+.site.archive .evgot{border-color:#cfbfa2;background:#f7f1e4;color:#6b573b}
+.site.port .evgot{border-color:#cfdae8;background:#f2f6fb;color:#33526f}
+.site.forum .evgot{border-color:#2f4056;background:#131a24;color:#8fb6e0}
+.site.lh .evgot{border-color:#1d5340;background:#04100c;color:#5fc39a;font-family:inherit;font-size:12px}
+.site.archive .fold{border-color:#cfbfa2;background:#f7f1e4;color:#6b573b}
+.site.port .fold{border-color:#cfdae8;background:#f2f6fb;color:#33526f}
+.site.forum .fold{border-color:#2f4056;background:#131a24;color:#8fb6e0}
+.site.lh .fold{border-color:#1d5340;background:#04100c;color:#5fc39a;font-family:inherit;font-size:12px}
+.fold[data-act]{-webkit-appearance:none;appearance:none}
+.ditem.off:active{background:#0f1620}
+.berth div[data-act]{cursor:pointer}
+.berth div[data-act]:active{filter:brightness(.94)}
+.kv[data-act]{cursor:pointer}
+.kv[data-act]:active{opacity:.6}
+
+/* ---------- 政务内网 ---------- */
+.site.gov{background:#eef2f7;color:#22303f}
+.gbar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#1d3a5f;color:#fff}
+.gbar .logo{font-size:14px;font-weight:700;letter-spacing:.5px}
+.gbar .badge{font-size:10px;padding:2px 7px;border:1px solid rgba(255,255,255,.5);border-radius:3px}
+.gnav{display:flex;gap:14px;padding:9px 16px;background:#24466f;color:#cfe0f5;font-size:12px;overflow:auto;white-space:nowrap}
+.gcard{margin:12px 14px;padding:14px;border-radius:10px;background:#fff;border:1px solid #dbe3ee}
+.site.gov .inp{border-color:#c3cfe0;background:#fff}
+.site.gov .tbl th,.site.gov .tbl td{border-color:#e3e9f2}
+.site.gov .kv{border-color:#e3e9f2}
+.site.gov .warnbox{background:#fff4f2;border-color:#d84a3a;color:#7a2620}
+.site.gov .okbox{background:#eefaf2;border-color:#2f9e58;color:#1d5c36}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+/* ---------- 档案馆 ---------- */
+.site.archive{background:#f3ece0;color:#3a3026}
+.abar{padding:14px 16px;border-bottom:3px double #b9a88c;display:flex;align-items:baseline;justify-content:space-between}
+.abar .logo{font-size:16px;font-weight:700;letter-spacing:3px;font-family:serif}
+.abar .nsub{font-size:10.5px;color:#8a7a63}
+.acard{margin:12px 14px;padding:14px;background:#fbf6ec;border:1px solid #d9c9ad}
+.site.archive .inp{border-color:#cbb99b;background:#fffdf8;color:#3a3026}
+.site.archive .tbl th,.site.archive .tbl td{border-color:#e0d3bb}
+.site.archive .kv{border-color:#e0d3bb}
+.site.archive .btn{background:#6d5a3e}
+.site.archive .okbox{background:#f2f8ef;border-color:#5c8a4a;color:#2f4a24}
+.docno{font-family:ui-monospace,monospace;font-size:11.5px;letter-spacing:1px;color:#8a7a63}
+.qmark{color:#b03a2e;font-weight:700}
+
+/* ---------- 物流调度 ---------- */
+.site.port{background:#f7f8fa;color:#1d2733}
+.pbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#0e3b52;color:#fff}
+.pbar .logo{font-size:14px;font-weight:700}
+.pbar .nsub{font-size:10.5px;opacity:.8}
+.site.port .tbl th,.site.port .tbl td{border-color:#e2e7ee}
+.site.port .kv{border-color:#e2e7ee}
+.site.port .inp{border-color:#c9d2de}
+.berth{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 14px}
+.berth div{height:52px;border-radius:8px;background:#e7edf5;display:flex;align-items:center;justify-content:center;font-size:12px;color:#41546b;border:1px solid #d5dfec}
+.berth div.off{background:#fff3e6;border-color:#e8b47a;color:#8a5418;font-weight:700}
+.berth div span{font-size:10px;opacity:.75;margin-left:3px}
+
+/* ---------- 博客 ---------- */
+.site.blog{background:#fbfaf7;color:#2b2b2b}
+.bbar{padding:16px;border-bottom:1px solid #e8e4dc;display:flex;align-items:center;justify-content:space-between}
+.bbar .logo{font-size:15px;font-weight:700;letter-spacing:1px}
+.bbar .nsub{font-size:10.5px;color:#9a958c}
+.empty{padding:40px 18px;text-align:center;color:#9a958c;font-size:13px}
+.exif{font-family:ui-monospace,monospace;font-size:12px;background:#f2f0ea;border:1px solid #e2ded4;border-radius:10px;padding:12px 14px;margin:12px 14px;line-height:2;color:#3a352c}
+
+/* ---------- 论坛 ---------- */
+.site.forum{background:#14181f;color:#c9d4e2}
+.fbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#1b2230;border-bottom:1px solid #26303f}
+.fbar .logo{font-size:14px;font-weight:700;letter-spacing:1px;color:#e3ecf7}
+.fbar .nsub{font-size:10.5px;color:#7d8ca1}
+.fthread{margin:12px 14px;padding:14px;background:#1a2029;border:1px solid #26303f;border-radius:10px}
+.fthread .ft{font-size:16px;font-weight:700;color:#e8f0fa;margin-bottom:6px}
+.fauthor{font-size:11.5px;color:#7d8ca1;margin-bottom:10px}
+.site.forum .p{color:#b9c6d6}
+.site.forum .card{background:#1a2029;border:1px solid #26303f;color:#b9c6d6}
+.site.forum .inp{background:#10151c;border-color:#2b3546;color:#dbe6f4}
+.site.forum .kv{border-color:#26303f}
+.site.forum .small{color:#7d8ca1}
+.site.forum .warnbox{background:#2a1a1a;color:#f0b4ac;border-color:#c0492f}
+.site.forum .okbox{background:#16261d;color:#a8e0bb;border-color:#2f9e58}
+.site.forum .link{color:#5aa7f5}
+.attach{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px dashed #3a4a60;border-radius:9px;background:#10151c;margin-top:10px;font-size:13px;color:#9fb4cc}
+
+/* ---------- 灯塔终端 ---------- */
+.site.lh{background:#05090a;color:#6fe3a8;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.site.lh .term{padding:16px 18px;font-size:12.5px;line-height:2;white-space:pre-wrap;word-break:break-word}
+.site.lh .term .dim{color:#2f7f5c}
+.site.lh .term .warn{color:#e2b23a}
+.site.lh .inp{background:#020605;border:1px solid #1d5340;color:#7dfcc0;font-family:inherit;font-size:13px;height:38px}
+.site.lh .btn{background:#114d38;color:#b8ffdc;font-family:inherit}
+.site.lh .h1,.site.lh .h2{color:#9dffcb;font-family:inherit}
+.site.lh .small{color:#3f8f6c}
+.site.lh .kv{border-color:#14352a;color:#7dfcc0;font-size:12px}
+.site.lh .okbox{background:#06231a;border-color:#2f9e58;color:#a8f5c9;font-family:inherit}
+.site.lh .warnbox{background:#231a06;border-color:#c99a2f;color:#f0d79a;font-family:inherit}
+.site.lh .lt{flex:0 0 40px;font-family:inherit;font-size:13px;color:#6fe3a8;display:flex;align-items:center}
+.site.lh .apx{margin:14px;border:1px solid #1d5340;background:#04100c;border-radius:10px;overflow:hidden}
+.apxhead{padding:11px 14px;background:#0a1f18;border-bottom:1px solid #1d5340}
+.apxhead .t1{font-size:12px;color:#5fc39a;letter-spacing:2px}
+.apxhead .t2{font-size:10.5px;color:#2f7f5c;margin-top:4px;letter-spacing:.5px}
+.apxbody{padding:4px 14px 14px}
+.apx .tl{display:flex;gap:10px;padding:9px 0;border-bottom:1px dashed #12291f;font-size:12px;line-height:1.75}
+.apx .tl:last-of-type{border-bottom:0}
+.apx .tl .tm{flex:0 0 78px;color:#7dfcc0}
+.apx .tl .tx{flex:1;color:#57b98f}
+.apx .tl .tx b{color:#a8f5c9;font-weight:600}
+.apx .apxend{margin-top:10px;padding-top:10px;border-top:1px solid #12291f;font-size:12px;line-height:1.9;color:#3f8f6c}
+.apx .apxend em{font-style:normal;color:#7dfcc0}
+
+/* ---------- 抽屉 ---------- */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .22s;z-index:80}
+.mask.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;bottom:0;width:82%;max-width:340px;background:#0d131c;z-index:90;display:flex;flex-direction:column;transition:transform .26s cubic-bezier(.3,.8,.3,1);border-right:1px solid #1b2634}
+.drawer#dSites{left:0;transform:translateX(-102%)}
+.drawer#dEv{right:0;left:auto;transform:translateX(102%);border-right:0;border-left:1px solid #1b2634}
+.drawer.on{transform:translateX(0)}
+.dhead{padding:16px 16px 12px;border-bottom:1px solid #1b2634}
+.dhead .dt{font-size:14px;font-weight:700;color:#e6edf6;letter-spacing:.5px}
+.dhead .ds{font-size:11px;color:#7c8ea6;margin-top:3px}
+.dbody{flex:1;overflow-y:auto;padding:8px 0 30px}
+.ditem{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid #131c27}
+.ditem:active{background:#131c27}
+.ditem .num{flex:0 0 24px;height:24px;border-radius:7px;background:#1b2c42;color:#6fa8e8;font-size:10.5px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.ditem .nm{flex:1;min-width:0}
+.ditem .nm b{display:block;font-size:13px;color:#d7e2f0;font-weight:600}
+.ditem .nm span{display:block;font-size:10.5px;color:#6f829a;margin-top:1px}
+.ditem.off{opacity:.42}
+.ditem.off .num{background:#1a222c;color:#54657a}
+.ditem .st{font-size:10px;color:#47b37a}
+.ditem.off .st{color:#4d5c6d}
+.dbar{padding:12px 16px 20px;border-top:1px solid #1b2634}
+.prog{height:5px;border-radius:3px;background:#1a2433;overflow:hidden;margin:8px 0}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#2f6fed,#4ad991);width:0;transition:width .4s}
+.rst{display:block;width:100%;margin-top:10px;height:36px;border:1px solid #2c3d52;border-radius:9px;background:transparent;color:#7b8da4;font-size:12px;font-family:inherit;letter-spacing:.3px;cursor:pointer;transition:background .18s,color .18s,border-color .18s}
+.rst:active{background:#131c27}
+.rst.arm{border-color:#8a3a30;background:#241210;color:#f0a196}
+
+/* ---------- 提示条 ---------- */
+.toast{position:fixed;left:50%;bottom:74px;transform:translate(-50%,14px);background:rgba(20,30,44,.96);border:1px solid #2b3d54;color:#dfeaf7;font-size:12.5px;padding:9px 16px;border-radius:20px;opacity:0;pointer-events:none;transition:.25s;z-index:120;max-width:86%;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="statusbar">
+    <span id="clock">21:14</span>
+    <span class="r">
+      <span class="sig"><i></i><i></i><i></i><i></i></span>
+      <span style="font-size:10px">4G</span>
+      <span class="batt"><em></em></span>
+    </span>
+  </div>
+
+  <div class="toolbar">
+    <button class="tb" id="btnBack" aria-label="后退"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="tb" id="btnFwd" aria-label="前进"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <div class="addr">
+      <span class="lk"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+      <span class="dom" id="addrDom">news.langang.cn</span>
+      <span class="path" id="addrPath">/</span>
+    </div>
+    <button class="tb" id="btnReload" aria-label="刷新"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.6"/><path d="M20 5v6h-6"/></svg></button>
+  </div>
+
+  <div class="loadbar"><i id="loadbar"></i></div>
+
+  <div class="view" id="view"></div>
+
+  <div class="bottom">
+    <button id="bbReset"><span class="ic">↻</span><span id="bbResetTx">重新游戏</span></button>
+    <button id="bbHome"><span class="ic">⌂</span><span>主页</span></button>
+    <button id="bbSites"><span class="ic">☰</span><span>站点</span></button>
+    <button id="bbEv"><span class="ic">▣</span><span>证物</span><span class="bd" id="evBadge">0</span></button>
+  </div>
+</div>
+
+<div class="mask" id="mask"></div>
+
+<div class="drawer" id="dSites">
+  <div class="dhead">
+    <div class="dt">已发现站点</div>
+    <div class="ds" id="siteSub">解锁进度 1 / 8</div>
+  </div>
+  <div class="dbody" id="siteList"></div>
+  <div class="dbar">
+    <div class="small" id="storeNote" style="color:#6f829a;font-size:11px">案卷编号 07-0314 · 本地存档</div>
+    <div class="prog"><i id="siteProg"></i></div>
+    <button class="rst" id="btnReset" data-act="rst">重置游戏 · 清空全部进度</button>
+  </div>
+</div>
+
+<div class="drawer" id="dEv">
+  <div class="dhead">
+    <div class="dt">物证档案</div>
+    <div class="ds" id="evSub">已归档 0 / 10</div>
+  </div>
+  <div class="dbody" id="evList"></div>
+  <div class="dbar">
+    <div class="prog"><i id="evProg"></i></div>
+    <div class="small" style="color:#6f829a;font-size:11px;margin-top:8px">所有物证保存在本机，刷新不丢失。</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= 存档 ================= */
+var KEY='dock7_case_v3';
+var DEF={ev:[],sites:['news'],err:0,err2:0,reveals:{},fields:{uid:'',pw:'',kw:'',pw2:'',lat:'',lon:''}};
+
+function clone(o){return JSON.parse(JSON.stringify(o));}
+
+/* 存档通道：localStorage 不可用时降级为内存存档，并在抽屉里明示 */
+var LS=(function(){
+  try{
+    var k='__dock7_probe__';
+    window.localStorage.setItem(k,'1');
+    window.localStorage.removeItem(k);
+    return window.localStorage;
+  }catch(e){return null;}
+})();
+var memRaw=null;
+
+function load(){
+  try{
+    var raw=LS?LS.getItem(KEY):memRaw;
+    if(!raw)return clone(DEF);
+    var s=JSON.parse(raw),d=clone(DEF);
+    for(var k in d){if(!(k in s))s[k]=d[k];}
+    for(var f in d.fields){if(!(f in s.fields))s.fields[f]=d.fields[f];}
+    return s;
+  }catch(e){return clone(DEF);}
+}
+function save(){
+  var raw=JSON.stringify(st);
+  if(!LS){memRaw=raw;return;}
+  try{LS.setItem(KEY,raw);}
+  catch(e){LS=null;memRaw=raw;}
+}
+var st=load();
+
+/* ================= 重置 ================= */
+var rstTimer=null;
+function disarmReset(){
+  clearTimeout(rstTimer);rstTimer=null;
+  var b=document.getElementById('btnReset');
+  if(b){b.classList.remove('arm');b.textContent='重置游戏 · 清空全部进度';}
+  var bb=document.getElementById('bbReset');
+  if(bb){bb.classList.remove('arm');}
+  var tx=document.getElementById('bbResetTx');
+  if(tx){tx.textContent='重新游戏';}
+}
+function armReset(){
+  var b=document.getElementById('btnReset');
+  if(b){b.classList.add('arm');b.textContent='再点一次，确认清空';}
+  var bb=document.getElementById('bbReset');
+  if(bb){bb.classList.add('arm');}
+  var tx=document.getElementById('bbResetTx');
+  if(tx){tx.textContent='再点一次·清档';}
+  clearTimeout(rstTimer);
+  rstTimer=setTimeout(disarmReset,4000);
+}
+/* 真正的清档：存储、状态、路由、提示队列一起归零 */
+function doReset(){
+  if(LS){try{LS.removeItem(KEY);}catch(e){}}
+  memRaw=null;
+  st=clone(DEF);
+  nav={stack:['news'],i:0};
+  tQueue.length=0;tBusy=false;
+  clearTimeout(tT1);clearTimeout(tT2);
+  tEl.classList.remove('on');
+  closeDrawers();
+  paint(true);
+  disarmReset();
+  toast('案卷已重置，从第一页开始');
+}
+
+/* ================= 物证 ================= */
+var EVID=[
+ ['e1','新闻剪报','沈砚舟失联报道 2019-03-15'],
+ ['e2','原始观测记录','19:34 满潮 3.87m'],
+ ['e3','对外潮汐表差异','发布版本 18:54 满潮'],
+ ['e4','B区断电记录','19:34 - 19:41 共 7 分钟'],
+ ['e5','B-14 检修通道','连通第八码头旧泊位'],
+ ['e6','港区泊位图','8号位为未开放预留区'],
+ ['e7','船期异常','浙岚渔032 无靠泊记录'],
+ ['e8','照片元数据','经度 E118°19′'],
+ ['e9','气压计刻痕','纬度 N35°07′'],
+ ['e10','双坐标交点','第八码头外海 0.31 海里']
+];
+function hasEv(id){return st.ev.indexOf(id)>=0;}
+function evName(id){
+  for(var i=0;i<EVID.length;i++){if(EVID[i][0]===id)return EVID[i][1];}
+  return '';
+}
+/* 只写入数据，不写 DOM、不弹提示。提示由调用方决定。 */
+function addEv(id){
+  if(hasEv(id))return false;
+  st.ev.push(id);save();
+  return true;
+}
+function unlockSite(k){
+  if(!SITES[k]||st.sites.indexOf(k)>=0)return false;
+  st.sites.push(k);save();
+  return true;
+}
+
+/* 线索到手判定：站点可进、或关键物证已归档，都算线索已经落到手里 */
+var EVSITE={e1:'news',e2:'weather',e3:'weather',e4:'weather',e5:'archive',e6:'port',e7:'port',e8:'blog',e9:'forum',e10:'lh'};
+var EVON={e2:'wlogin',e3:'wlogin',e4:'wlogin',e5:'arc',e6:'prt',e7:'prt',e8:'exif',e9:'frm'};
+function revealed(k){
+  if(st.sites.indexOf(k)>=0)return true;
+  var id=st.reveals[EVON[k]];
+  if(id&&id!==true)return hasEv(id);
+  return false;
+}
+/* 物证按钮上挂的提示：拿不到时告诉玩家该往哪看，不剧透内容 */
+var EVTIP={e1:'这条报道还没进过你的视线。',e2:'得先进去观测业务内网。',e3:'得先进去观测业务内网。',e4:'得先进去观测业务内网。',e5:'得先调出那份检修卷宗。',e6:'得先看到港区的泊位图。',e7:'得先调出船期记录。',e8:'得先把照片元数据解析出来。',e9:'得先把那个压缩包解开。',e10:'两个坐标还没凑齐。'};
+
+/* 玩家主动归档：只有点了才算拿到，提示只在这里出现 */
+function collectEv(id){
+  if(!addEv(id))return false;
+  toast('物证归档 · '+evName(id));
+  return true;
+}
+/* 物证控件：未归档是可点的按钮，归档后变成状态条 */
+function evBox(id,label){
+  var nm=evName(id);
+  if(hasEv(id))return '<div class="evgot">已归档 · '+nm+'</div>';
+  return '<button class="fold" data-act="ev" data-ev="'+id+'">▣ 记录物证 · '+(label||nm)+'</button>';
+}
+
+/* ================= 提示（排队，不互相覆盖） ================= */
+var tEl=document.getElementById('toast'),tQueue=[],tBusy=false,tT1=null,tT2=null;
+function toast(msg){
+  if(!msg)return;
+  tQueue.push(msg);
+  if(!tBusy)nextToast();
+}
+function nextToast(){
+  var msg=tQueue.shift();
+  if(msg===undefined){tBusy=false;tEl.classList.remove('on');return;}
+  tBusy=true;
+  tEl.textContent=msg;
+  tEl.classList.add('on');
+  clearTimeout(tT1);clearTimeout(tT2);
+  tT1=setTimeout(function(){
+    tEl.classList.remove('on');
+    tT2=setTimeout(nextToast,220);
+  },1500);
+}
+/* 一次批量播报，避免中途被后来的提示挤掉 */
+function toastAll(list){
+  for(var i=0;i<list.length;i++)toast(list[i]);
+}
+
+/* ================= 站点 ================= */
+var SITES={
+  news:{host:'news.langang.cn',path:'/2019/0315/45812.html',name:'岚港新闻网',render:renderNews},
+  notice:{host:'news.langang.cn',path:'/2007/0305/notice_0307.html',name:'招录公示',render:renderNotice},
+  weather:{host:'weather.langang.gov.cn',path:'/obs/query.jsp',name:'气象局内网',render:renderWeather},
+  archive:{host:'archive.langang.gov.cn',path:'/search?fonds=07',name:'市档案馆',render:renderArchive},
+  port:{host:'port.langang-logistics.cn',path:'/berth/schedule',name:'港区调度',render:renderPort},
+  blog:{host:'linlan.blog.lofter.cn',path:'/archive',name:'摄影日志',render:renderBlog},
+  forum:{host:'bbs.sailorbar.cn',path:'/thread/0314',name:'水手吧',render:renderForum},
+  lh:{host:'lighthouse.langang.cn',path:'/terminal/03',name:'航标终端',render:renderLh}
+};
+var ORDER=['news','notice','weather','archive','port','blog','forum','lh'];
+var TOTAL=ORDER.length;
+
+/* ================= 路由 ================= */
+var nav={stack:['news'],i:0};
+var view=document.getElementById('view');
+var addrDom=document.getElementById('addrDom');
+var addrPath=document.getElementById('addrPath');
+var btnBack=document.getElementById('btnBack');
+var btnFwd=document.getElementById('btnFwd');
+var loadbar=document.getElementById('loadbar');
+var lt;
+
+function runLoad(){
+  loadbar.style.transition='none';loadbar.style.width='0%';loadbar.style.opacity='1';
+  clearTimeout(lt);
+  setTimeout(function(){loadbar.style.transition='width .5s ease';loadbar.style.width='74%';},16);
+  lt=setTimeout(function(){
+    loadbar.style.width='100%';
+    setTimeout(function(){loadbar.style.opacity='0';},260);
+  },360);
+}
+
+function paint(anim){
+  var key=nav.stack[nav.i],s=SITES[key];
+  view.scrollTop=0;
+  view.innerHTML=s.render();
+  addrDom.textContent=s.host;
+  addrPath.textContent=s.path;
+  btnBack.disabled=nav.i<=0;
+  btnFwd.disabled=nav.i>=nav.stack.length-1;
+  var bbr=document.getElementById('bbReset');
+  document.getElementById('bbResetTx').textContent=bbr.classList.contains('arm')?'再点一次·清档':'重新游戏';
+  refreshDrawers();
+  if(anim)runLoad();
+}
+function go(key){
+  if(!SITES[key])return;
+  nav.stack=nav.stack.slice(0,nav.i+1);
+  if(nav.stack[nav.i]!==key){nav.stack.push(key);nav.i=nav.stack.length-1;}
+  closeDrawers();
+  paint(true);
+}
+btnBack.onclick=function(){if(nav.i>0){nav.i--;paint(true);}};
+btnFwd.onclick=function(){if(nav.i<nav.stack.length-1){nav.i++;paint(true);}};
+document.getElementById('bbReset').onclick=function(){
+  if(this.classList.contains('arm')){doReset();}
+  else{armReset();toast('再点一次，清空全部进度');}
+};
+document.getElementById('btnReload').onclick=function(){paint(true);};
+document.getElementById('bbHome').onclick=function(){go('news');};
+
+/* ================= 抽屉 ================= */
+var dSites=document.getElementById('dSites'),dEv=document.getElementById('dEv'),mask=document.getElementById('mask');
+function openDrawer(which){
+  closeDrawers();
+  (which==='sites'?dSites:dEv).classList.add('on');
+  mask.classList.add('on');
+}
+function closeDrawers(){
+  dSites.classList.remove('on');dEv.classList.remove('on');mask.classList.remove('on');
+  disarmReset();
+}
+mask.onclick=closeDrawers;
+document.getElementById('bbSites').onclick=function(){refreshDrawers();openDrawer('sites');};
+document.getElementById('bbEv').onclick=function(){refreshDrawers();openDrawer('ev');};
+
+function refreshDrawers(){
+  var i,k,on,h='';
+  for(i=0;i<ORDER.length;i++){
+    k=ORDER[i];on=st.sites.indexOf(k)>=0;
+    h+='<div class="ditem'+(on?'':' off')+'" data-act="'+(on?'go':'lock')+'" '+(on?'data-site="'+k+'"':'data-name="'+(i+1)+'"')+'>';
+    h+='<span class="num">'+(i+1)+'</span>';
+    h+='<span class="nm"><b>'+(on?SITES[k].name:'未解锁站点')+'</b><span>'+(on?SITES[k].host:'地址未知')+'</span></span>';
+    h+='<span class="st">'+(on?'可用':'锁定')+'</span>';
+    h+='</div>';
+  }
+  document.getElementById('siteList').innerHTML=h;
+  var sn=document.getElementById('storeNote');
+  if(sn)sn.textContent=LS?'案卷编号 07-0314 · 本地存档':'案卷编号 07-0314 · 临时存档（本机不可写）';
+  document.getElementById('siteSub').textContent='解锁进度 '+st.sites.length+' / '+TOTAL;
+  document.getElementById('siteProg').style.width=(st.sites.length/TOTAL*100)+'%';
+
+  var e='';
+  for(i=0;i<EVID.length;i++){
+    var it=EVID[i],got=hasEv(it[0]);
+    e+='<div class="ditem'+(got?'':' off')+'" '+(got?'data-act="peek" data-ev="'+it[0]+'"':'')+'>';
+    e+='<span class="num">'+(i+1)+'</span>';
+    e+='<span class="nm"><b>'+(got?it[1]:'未归档物证')+'</b><span>'+(got?it[2]:'继续调查以获得')+'</span></span>';
+    e+='<span class="st">'+(got?'已存':'空')+'</span>';
+    e+='</div>';
+  }
+  document.getElementById('evList').innerHTML=e;
+  document.getElementById('evSub').textContent='已归档 '+st.ev.length+' / 10';
+  document.getElementById('evProg').style.width=(st.ev.length/10*100)+'%';
+  document.getElementById('evBadge').textContent=st.ev.length;
+}
+
+/* ================= 站点一：新闻网 ================= */
+function renderNews(){
+  var h='';
+  h+='<div class="site news">';
+  h+='<div class="nbar"><span class="logo">岚港新闻网</span><span class="nsub">LAN GANG DAILY</span></div>';
+  h+='<div class="nav"><span class="on">首页</span><span data-act="noop">社会</span><span data-act="noop">港区</span><span data-act="noop">视频</span><span data-act="noop">报料</span></div>';
+  h+='<h1 class="h1">气象观测员失联已超四十小时，警方介入第七码头</h1>';
+  h+='<div class="meta">记者 陈默 · 社会频道 · 2019-03-15 08:12</div>';
+  h+='<p class="p lead">岚港市气象局观测员沈砚舟，3月14日晚间未按例提交19时观测报表。截至发稿，其失联已超过四十小时。</p>';
+  h+='<p class="p">同事回忆，他当天下午提前离岗，只说要去第七码头取一件东西。港区门禁记录显示，他于19时28分进入港区，此后再没有出现在任何出口的登记里。</p>';
+  h+='<p class="p">第七码头建于上世纪七十年代，2006年停止客运，目前仅作渔获临时卸货点。夜间照明老化，东侧部分区域长期封闭。</p>';
+  h+='<p class="p">市气象局表示，沈砚舟负责潮位与气压观测，业务记录一向无差错。他是 2007 年 3 月那一批招进站的，同批七个人只剩他还在跑一线，算下来在站里整整十二年。同事说每年三月他都要请半天假，从不解释去做什么，也不让人跟着。其家属已于15日凌晨向警方报案。</p>';
+  h+='<div class="card"><div class="ttl">读者评论 (8)</div>';
+  h+='<div class="cmt"><div class="who">老船员 · 03-15 09:40</div>那天我就在堤上。19点34分水才真正顶到最高，报上写的18点54分满潮，我们船上没人信。</div>';
+  h+='<div class="cmt tap" data-act="cmt2"><div class="who">匿名 · 03-15 10:02</div>我之前用他电脑查过东西。他那账号规则挺死的，姓名拼音首字母后面跟年份，每年一月局里统一重排，今年应该是19年的那套。密码他一直没改，我劝过他两次都不听。他说这串数字是身份证后六位，前两位是他生日那天几号，后四位照抄。</div>';
+  h+='<div class="cmt tap" data-act="cmt3"><div class="who">老船员 · 03-15 10:18</div>说到日子，我想起 2007 年春天。三月五号局里那个网上挂过一张招录表，公示名单，纸都没印，就在网上放了两个礼拜。带照片的那版我打印过一份贴在值班室，第二天就被办公室的人撕了。</div>';
+  h+='<div class="cmt"><div class="who">匿名 · 03-15 10:55</div>别问了。今晚别去第七码头。</div>';
+  h+='<div class="cmt tap" data-act="rh" data-tip="这条是错的。2019 年只认 syz 加当年年度，2007 是他进站那年。"><div class="who">匿名 · 03-15 11:47</div>工号好像是 syz2007 吧，他 07 年进的站。密码我没记错的话，是他闺女那一串。</div>';
+  h+='<div class="cmt tap" data-act="rh" data-tip="这张表是 14 号白班的。签退 18:10，跟夜里的事接不上。"><div class="who">港区老王 · 03-15 13:44</div>值班表我拍了。14 号上面有沈砚舟三个字，他自己签的退。你们自己去港区看。</div>';
+  h+='<div class="cmt"><div class="who">匿名 · 03-15 17:22</div>楼上你们别乱说，他有没有闺女谁也没见过。</div>';
+h+='<div class="cmt tap" data-act="cmt4"><div class="who">匿名 · 03-17 00:20</div>今天是他的生日。这日子他从来不过，谁提他跟谁急，最多自己在值班室多泡一杯茶，喝完接着上观测台。十四号夜里出的事，到今天正好差三天。家里那个蛋糕还没拆，谁都不敢动。</div>';
+
+  h+='</div>';
+  if(st.reveals.cmt2){
+    h+='<div class="okbox">这条回复里提到的域名：weather.langang.gov.cn<br>观测业务内网，外网也能访问。<br><span class="link" data-act="go" data-site="weather">进气象局内网</span></div>';
+  }
+  if(st.reveals.cmt3){
+    h+='<div class="okbox">老船员说的那张公示还在：news.langang.cn/2007/0305/notice_0307.html<br>2007年气象局招录名单。<br><span class="link" data-act="go" data-site="notice">打开公示页</span></div>';
+  }
+  if(st.reveals.cmt4){
+    h+='<div class="okbox">这条回帖把日子交代清楚了：<b class="mono">3月17日</b>。观测科考勤表上，他每年只在这一天补半天假。<br>内网密码那六位里，前两位取的就是这个日子。</div>';
+  }
+  if(st.reveals.cmt2&&st.reveals.cmt3){
+    h+='<div class="small" style="padding:0 18px;color:#6f829a">公示表上那份名单是最后一份完整档案。他进站时的工号由姓名拼音首字母拼当年年度，逐年重排；内网密码沿用的那六位，只能从这张表上还原。</div>';
+  }
+  h+='<div class="card"><div class="ttl">相关</div><div class="small">· 岚港港区2006年停运码头清单（档案馆）<br>· 潮汐表发布规程修订说明（2018）</div></div>';
+  h+=evBox('e1','本篇报道剪报');
+  h+='</div>';
+  return h;
+}
+
+/* ================= 站点：招录公示（新闻站老目录快照） ================= */
+function renderNotice(){
+  var h='';
+  h+='<div class="site news">';
+  h+='<div class="nbar"><span class="logo">岚港新闻网</span><span class="nsub">ARCHIVE 2007</span></div>';
+  h+='<div class="nav"><span data-act="go" data-site="news">新闻首页</span><span class="on">公告归档</span><span data-act="noop">政务</span><span data-act="noop">人事</span></div>';
+  h+='<div class="meta" style="padding-top:10px">归档地址 news.langang.cn/2007/0305/notice_0307.html · 静态快照 · 撤下后未再更新</div>';
+
+  h+='<div class="card">';
+  h+='<div class="docno">岚气人〔2007〕3号 · 2007-03-05 发布 · 公示期十五天</div>';
+  h+='<div class="h2" style="margin:8px 0 10px;padding:0">岚港市气象局2007年公开招聘拟聘用人员名单公示</div>';
+  h+='<p class="p" style="padding:0;font-size:13.5px">根据《岚港市事业单位公开招聘人员办法》及我局 2007 年度岗位需求，经笔试、面试、体检与政审，现将拟聘用人员名单予以公示。公示期内如有异议，可向市气象局人事处书面反映。</p>';
+  h+='<p class="p" style="padding:0;font-size:13.5px">本批拟聘用 7 人，岗位为地面气象观测、潮位与盐度监测、通讯与雷达维护、财务报账。新聘人员自 2007 年 3 月起编入观测科，工号由本人姓名拼音首字母与当年年度合成，此后每年一月重排。</p>';
+  h+='</div>';
+
+  h+='<div class="card">';
+  h+='<div class="ttl">拟聘用人员名单</div>';
+  h+='<table class="tbl"><tr><th>序号</th><th>姓名</th><th>报考岗位</th><th>准考证号</th><th>身份证号</th></tr>';
+  h+='<tr><td>1</td><td>沈*舟</td><td>地面气象观测</td><td class="mono">2007-GC-0117</td><td class="mono">330921********0427</td></tr>';
+  h+='<tr><td>2</td><td>周*平</td><td>地面气象观测</td><td class="mono">2007-GC-0118</td><td class="mono">330921********3316</td></tr>';
+  h+='<tr><td>3</td><td>蔡*明</td><td>潮位与盐度监测</td><td class="mono">2007-GC-0121</td><td class="mono">330921********2058</td></tr>';
+  h+='<tr><td>4</td><td>曾*辉</td><td>潮位与盐度监测</td><td class="mono">2007-GC-0122</td><td class="mono">330921********6931</td></tr>';
+  h+='<tr><td>5</td><td>林*</td><td>通讯与雷达维护</td><td class="mono">2007-TX-0203</td><td class="mono">330902********5824</td></tr>';
+  h+='<tr><td>6</td><td>高*成</td><td>通讯与雷达维护</td><td class="mono">2007-TX-0204</td><td class="mono">330902********1169</td></tr>';
+  h+='<tr><td>7</td><td>许*芳</td><td>财务报账</td><td class="mono">2007-CW-0101</td><td class="mono">330921********7403</td></tr>';
+  h+='</table>';
+  h+='<div class="small" style="margin-top:10px">注：按当时公示规定，身份证号作脱敏处理，只保留前六位与后四位，中间以星号代替。姓名保留首尾字。</div>';
+  h+='</div>';
+
+  h+='<div class="card">';
+  h+='<div class="ttl">公示说明</div>';
+  h+='<div class="kv"><span>公示起止</span><b class="mono">2007-03-05 至 2007-03-19</b></div>';
+  h+='<div class="kv"><span>拟聘用人数</span><b>7 人</b></div>';
+  h+='<div class="kv"><span>受理单位</span><b>市气象局人事处</b></div>';
+  h+='<div class="kv"><span>地址</span><b>岚港市望海路 12 号</b></div>';
+  h+='<div class="kv"><span>页面状态</span><b>2007-04-02 自公告栏撤下</b></div>';
+  h+='</div>';
+
+  h+='<div class="card" style="background:rgba(0,0,0,.04)">';
+  h+='<div class="ttl">归档附注</div>';
+  h+='<p class="p" style="padding:0;font-size:13px">这一版是带照片的完整名单。撤下时公告栏里换成了不含照片的简表,纸面简表随后也一并清理,只有新闻站的老目录还留着这份网页。</p>';
+  h+='<p class="p" style="padding:0;font-size:13px">准考证号是考场编号,不是身份证。拼错密码后可以再看一眼这张表。</p>';
+  h+='</div>';
+
+  h+='<div class="row"><button class="btn ghost" data-act="go" data-site="news" style="flex:1">返回新闻报道</button><button class="btn" data-act="go" data-site="weather" style="flex:1">气象局内网</button></div>';
+  h+='</div>';
+  return h;
+}
+
+/* ================= 站点二：气象局内网 ================= */
+function renderWeather(){
+  var h='<div class="site gov">';
+  h+='<div class="gbar"><span class="logo">岚港市气象局 · 观测业务内网</span><span class="badge">政务外网</span></div>';
+  h+='<div class="gnav"><span data-act="noop">首页</span><span data-act="noop">观测数据</span><span data-act="noop">潮汐预报</span><span data-act="noop">系统日志</span></div>';
+
+  if(!st.reveals.wlogin){
+    h+='<div class="gcard">';
+    h+='<div class="ttl">业务人员登录</div>';
+    h+='<div class="row" style="margin:0 0 10px"><input class="inp mono" data-f="uid" data-enter="wbtn" placeholder="工号" value="'+(st.fields.uid||'')+'"/></div>';
+    h+='<div class="row" style="margin:0 0 10px"><input class="inp mono" data-f="pw" data-enter="wbtn" type="password" placeholder="密码" value="'+(st.fields.pw||'')+'"/></div>';
+    h+='<button class="btn wide" id="wbtn" data-act="wlogin" style="margin:0;width:100%">登 录</button>';
+    if(st.err>0){
+      var wt='';
+      if(st.err===1){wt='工号或密码错误。';}
+      else if(st.err===2){wt='工号或密码错误。';}
+      else if(st.err===3){wt='工号或密码错误。工号自2019年1月起重排，账号与密码组合已修改。';}
+      else if(st.err===4){wt='工号或密码错误。密码六位，不足四位或八位。';}
+      else{wt='连续 '+st.err+' 次密码错误，登录日志已记录。<br>提示：工号当年重排，密码从未变更。六位数字中前两位为日期，后四位为身份证尾段。';}
+      h+='<div class="warnbox" style="margin:12px 0 0">'+wt+'</div>';
+    }
+    h+='<div class="small" style="margin-top:10px">本系统仅对在编观测人员开放，所有查询留有日志。</div>';
+    h+='</div>';
+  }else{
+    h+='<div class="gcard">';
+    h+='<div class="ttl">用户 沈砚舟 · 工号 syz2019 · 权限 观测员</div>';
+    h+='<div class="small">查询：2019-03-14 · 站号 0314 · 潮位原始记录</div>';
+    h+='<table class="tbl" style="margin-top:10px"><tr><th>时间</th><th>潮高(m)</th><th>备注</th></tr>';
+    h+='<tr><td>19:00</td><td>3.12</td><td></td></tr>';
+    h+='<tr><td>19:20</td><td>3.61</td><td></td></tr>';
+    h+='<tr><td>19:30</td><td>3.84</td><td></td></tr>';
+    h+='<tr style="background:#fff8d8"><td><b>19:34</b></td><td><b>3.87</b></td><td><b>当日峰值</b></td></tr>';
+    h+='<tr><td>19:40</td><td>3.86</td><td>B区断电</td></tr>';
+    h+='<tr><td>19:54</td><td>3.79</td><td></td></tr>';
+    h+='</table>';
+    h+='</div>';
+    h+=evBox('e2','原始观测记录');
+
+    h+='<div class="gcard">';
+    h+='<div class="ttl">对外发布版本 · 潮汐表</div>';
+    h+='<div class="kv"><span>发布满潮时间</span><b class="qmark">18:54</b></div>';
+    h+='<div class="kv"><span>发布满潮潮高</span><b>3.86 m</b></div>';
+    h+='<div class="kv"><span>原始记录满潮时间</span><b>19:34</b></div>';
+    h+='<div class="kv"><span>时间差</span><b class="qmark">40 分钟</b></div>';
+    h+='<div class="kv"><span>最后修改人</span><b>zhang.m（港务集团借调）</b></div>';
+    h+='<div class="kv"><span>修改时间</span><b>2019-03-13 22:41</b></div>';
+    h+='<div class="warnbox">发布时间早于原始记录四十分钟。若按发布表，19:34 时潮水已退尽，第七码头东侧通道可以通行。</div>';
+    h+='</div>';
+    h+=evBox('e3','对外潮汐表差异');
+
+    h+='<div class="gcard">';
+    h+='<div class="ttl">供电与设备状态 · 2019-03-14</div>';
+    h+='<div class="kv"><span>断电开始</span><b class="mono">19:34:06</b></div>';
+    h+='<div class="kv"><span>恢复供电</span><b class="mono">19:41:10</b></div>';
+    h+='<div class="kv"><span>影响范围</span><b>B区、B-14通道、东侧摄像头</b></div>';
+    h+='<div class="kv"><span>工单号</span><b>JC-0314-B</b></div>';
+    h+='<div class="kv"><span>申请单位</span><b>港务集团</b></div>';
+    h+='<div class="small" style="margin-top:8px">备注：检修工单于当日 17:20 提交，未附现场负责人签字。</div>';
+    h+='</div>';
+    h+=evBox('e4','B区断电记录');
+
+    h+='<div class="row"><button class="btn" data-act="go" data-site="archive" style="flex:1">调取 B 区档案</button><button class="btn ghost" data-act="go" data-site="port" style="flex:1">港区调度</button></div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ================= 站点三：档案馆 ================= */
+function renderArchive(){
+  var h='<div class="site archive">';
+  h+='<div class="abar"><span class="logo">岚 港 市 档 案 馆</span><span class="nsub">全宗 07 · 港区基建</span></div>';
+  h+='<div class="row" style="margin-top:14px"><input class="inp" data-f="kw" data-enter="abtn" placeholder="输入关键词" value="'+(st.fields.kw||'')+'"/><button class="btn" id="abtn" data-act="asearch">检索</button></div>';
+  h+='<div class="small" style="padding:0 18px">可检索：码头编号、通道编号、停电、检修、泊位。</div>';
+
+  if(st.reveals.arcErr){
+    h+='<div class="warnbox">未检索到相关卷宗。关键词再具体一点。</div>';
+  }
+  if(st.reveals.arc){
+    h+='<div class="acard">';
+    h+='<div class="docno">档案号 07-0314-B · 密级 内部</div>';
+    h+='<div class="h2" style="margin:6px 0 10px">B-14 检修通道 及第八码头旧泊位说明</div>';
+    h+='<p class="p" style="padding:0">「B-14 检修通道」位于第七码头东侧，混凝土结构，向东延伸约 210 米，尽头与「第八码头旧泊位」相连。</p>';
+    h+='<p class="p" style="padding:0">第八码头 1986 年编号，2009 年撤销编号并退出调度系统，但系泊桩、护舷与登岸台阶均未拆除，实测仍具备 300 吨级船只靠泊能力。</p>';
+    h+='<p class="p" style="padding:0">B-14 通道内无照明常电，无监控点位。2019-03-14 19:34 至 19:41 该段检修断电，照明与东侧摄像头同时失效。</p>';
+    h+='<div class="kv"><span>通道长度</span><b>210 m</b></div>';
+    h+='<div class="kv"><span>尽头连接</span><b>第八码头旧泊位</b></div>';
+    h+='<div class="kv"><span>监控覆盖</span><b class="qmark">无</b></div>';
+    h+='<div class="kv"><span>断电时段</span><b>19:34 - 19:41</b></div>';
+    h+='</div>';
+    h+=evBox('e5','B-14 检修通道');
+    h+='<div class="row"><button class="btn" data-act="go" data-site="port" style="flex:1">查看港区泊位</button></div>';
+  }
+
+  h+='<div class="acard">';
+  h+='<div class="ttl">同全宗其他卷宗</div>';
+  h+='<div class="kv"><span>07-0211 第七码头结构安全鉴定</span><b>1998</b></div>';
+  h+='<div class="kv"><span>07-0330 港区照明改造预算</span><b>2016</b></div>';
+  h+='<div class="kv"><span>08-0000 第八码头撤销编号文件</span><b class="qmark">已移交</b></div>';
+  h+='<div class="small" style="margin-top:8px">08 号全宗的卷宗不在本馆开放范围内。</div>';
+  h+='</div>';
+  h+='</div>';
+  return h;
+}
+
+/* ================= 站点四：港区物流调度 ================= */
+function renderPort(){
+  var h='<div class="site port">';
+  h+='<div class="pbar"><span class="logo">岚港港区物流调度平台</span><span class="nsub">测试环境 · 数据同步延迟 6h</span></div>';
+  h+='<div class="h2">2019-03-15 进港申报</div>';
+  h+='<table class="tbl" style="margin:0 14px;width:calc(100% - 28px)"><tr><th>时间</th><th>船名</th><th>申报泊位</th><th>实靠</th></tr>';
+  h+='<tr><td>02:10</td><td>浙岚渔032</td><td>第七码头</td><td class="qmark">无记录</td></tr>';
+  h+='<tr><td>03:40</td><td>闽渔1188</td><td>第三码头</td><td>已确认</td></tr>';
+  h+='<tr><td>05:15</td><td>港拖06</td><td>第五码头</td><td>已确认</td></tr>';
+  h+='</table>';
+
+  h+='<div class="h2">港区泊位图</div>';
+  h+='<div class="berth">';
+  for(var i=1;i<=7;i++){h+='<div>'+i+'号<span>在用</span></div>';}
+  h+='<div class="off">8号<span>预留</span></div>';
+  h+='</div>';
+  h+='<div class="small" style="padding:0 18px">8 号位：未开放预留区，面积约 1800 平方米，自 2009 年起不纳入调度系统。</div>';
+  h+=evBox('e6','港区泊位图');
+
+  if(!st.reveals.prt){
+    h+='<button class="btn wide" data-act="portrec">调取浙岚渔032 靠泊记录</button>';
+  }else{
+    h+='<div class="card" style="background:#fff;border:1px solid #e2e7ee">';
+    h+='<div class="ttl">靠泊记录 · 浙岚渔032</div>';
+    h+='<div class="kv"><span>申报时间</span><b>2019-03-15 02:10</b></div>';
+    h+='<div class="kv"><span>申报泊位</span><b>第七码头</b></div>';
+    h+='<div class="kv"><span>实际靠泊</span><b class="qmark">系统无记录</b></div>';
+    h+='<div class="kv"><span>AIS 最后位置</span><b>02:47 · 8 号位外海</b></div>';
+    h+='<div class="kv"><span>吃水</span><b>1.9 m（申报 3.5 吨渔获）</b></div>';
+    h+='<div class="warnbox">该船 02:47 后关闭 AIS。8 号位不在调度系统中，无法生成靠泊单，也无法生成装卸记录。</div>';
+    h+='</div>';
+    h+=evBox('e7','船期异常');
+    h+='<div class="row"><button class="btn" data-act="go" data-site="blog" style="flex:1">摄影日志存档</button></div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ================= 站点五：摄影日志 ================= */
+function renderBlog(){
+  var h='<div class="site blog">';
+  h+='<div class="bbar"><span class="logo">林澜的摄影日志</span><span class="nsub">LOFTER 存档</span></div>';
+  h+='<div class="empty">本站停止更新。<br><span class="small">博主于 2019-04-01 注销账号，全部正文已清空。</span></div>';
+  h+='<div class="card">';
+  h+='<div class="ttl">存档服务索引 · 共 1 条</div>';
+  h+='<div class="kv"><span>a0314.jpg</span><b>2019-03-14 19:36</b></div>';
+  h+='<div class="small" style="margin-top:6px">图片本体已丢失，仅保留元数据与缩略索引。</div>';
+  h+='</div>';
+
+  if(!st.reveals.exif){
+    h+='<button class="btn wide" data-act="exif">查看原图信息</button>';
+  }else{
+    h+='<div class="exif">';
+    h+='文件：a0314.jpg<br>';
+    h+='相机：Canon EOS 5D Mark III<br>';
+    h+='光圈：f/1.8　快门：1/30s　ISO：3200<br>';
+    h+='拍摄时间：2019-03-14 19:36:22<br>';
+    h+='纬度：<span class="qmark">「已抹除」</span><br>';
+    h+='经度：<span class="qmark">E118°19′</span><br>';
+    h+='备注：上传者于十四天后注销账号。<br>';
+    h+='</div>';
+    h+=evBox('e8','照片元数据');
+  }
+
+  /* 出口：日志本身是死路，必须给一条往下走的路 */
+  if(st.sites.indexOf('forum')>=0){
+    h+='<div class="row"><button class="btn" data-act="go" data-site="forum" style="flex:1">水手吧</button></div>';
+  }else{
+    h+='<div class="row"><button class="btn ghost" data-act="go" data-site="port" style="flex:1">回港区调度查船期</button></div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ================= 站点六：水手吧 ================= */
+function renderForum(){
+  var h='<div class="site forum">';
+  h+='<div class="fbar"><span class="logo">水手吧 · 岚港分舵</span><span class="nsub">在线 12 人</span></div>';
+  h+='<div class="fthread">';
+  h+='<div class="ft">3月14号晚上，谁在第七码头见过老沈？</div>';
+  h+='<div class="fauthor">楼主 老鬼 · 2019-03-16 23:41</div>';
+  h+='<p class="p" style="padding:0">老沈上礼拜找我喝酒，说他手上有个东西，"能证明那天晚上水是什么时候涨的"。我问他东西放哪了，他说在船上那个气压计底下。</p>';
+  h+='<p class="p" style="padding:0">人到现在没消息。船被扣在港区，我进不去。谁有办法，回个话。</p>';
+  h+='<div class="attach">▤ sailor_0314.rar · 218 KB · 需要密码</div>';
+  h+='<div class="small" style="margin-top:8px">附件密码：老规矩，四位。我爸走之前留的那串数，他总说自己是民国三十一年生人。</div>';
+  h+='</div>';
+
+  if(!st.reveals.frm){
+    h+='<div class="row"><input class="inp" data-f="pw2" data-enter="fbtn" type="password" placeholder="输入附件密码" value="'+(st.fields.pw2||'')+'"/><button class="btn" id="fbtn" data-act="fopen">解压</button></div>';
+    if(st.reveals.frmErr){
+      var ft='';
+      if(st.err2<=1){ft='密码错误。';}
+      else if(st.err2===2){ft='密码错误。四位数字，民国纪年转公历。';}
+      else if(st.err2===3){ft='密码错误。民国元年 = 公历 1912。';}
+      else{ft='密码错误。他父亲民国三十一年生人，换算成公历，就是密码。';}
+      h+='<div class="warnbox">'+ft+'</div>';
+    }
+  }else{
+    h+='<div class="card">';
+    h+='<div class="ttl">sailor_0314.rar 已解压 · 1 个文件</div>';
+    h+='<div class="small" style="margin-bottom:8px">pres.txt · 手写记录转录</div>';
+    h+='<p class="p" style="padding:0">「老沈说气压计底座被人刻了一行字：N35°07′。<br>底下本来还有半句，被人用刀刮掉了，只剩最后几个字："再往下三海里"。」</p>';
+    h+='</div>';
+    h+=evBox('e9','气压计刻痕');
+    if(st.sites.indexOf('lh')>=0){
+      h+='<div class="row"><button class="btn" data-act="go" data-site="lh" style="flex:1">接入航标终端</button></div>';
+    }
+  }
+
+  h+='<div class="card">';
+  h+='<div class="ttl">回复 (2)</div>';
+  h+='<div class="small" style="margin-bottom:10px">2楼 · 阿海：老鬼他爸我见过，那年头的人记岁数都按民国算。别拿 1900 往前顺推，差着数，推出来对不上人。<br><br>3楼 · 匿名：别在吧里问了。8 号位那天有车，两辆，不是渔车。</div>';
+  h+='</div>';
+  h+='</div>';
+  return h;
+}
+
+/* ================= 站点七：航标终端 ================= */
+function renderLh(){
+  var h='<div class="site lh">';
+  h+='<div class="term">';
+  h+='<span class="dim">> 接入 岚港航标处 03 号废弃灯塔终端</span>\n';
+  h+='<span class="dim">> 终端状态：离线 11 年，本地缓存完好</span>\n';
+  h+='<span class="dim">> 装载旧版泊位匹配模块 ... 完成</span>\n';
+  h+='\n';
+  st.reveals.lh=true;save();
+  h+='需要输入一组坐标，用于匹配未编号泊位。\n';
+  h+='<span class="warn">纬度 / 经度 均需填写。</span>';
+  h+='</div>';
+
+  if(!st.reveals.final){
+    h+='<div class="row"><span class="lt">纬度</span><input class="inp" data-f="lat" data-enter="lhbtn" inputmode="numeric" placeholder="纬度四位数字" value="'+(st.fields.lat||'')+'"/></div>';
+    h+='<div class="row"><span class="lt">经度</span><input class="inp" data-f="lon" data-enter="lhbtn" inputmode="numeric" placeholder="经度五位数字" value="'+(st.fields.lon||'')+'"/></div>';
+    h+='<button class="btn wide" id="lhbtn" data-act="lhcheck">开始匹配</button>';
+    if(st.reveals.lhErr){h+='<div class="warnbox">坐标无法匹配任何已登记或未登记泊位。两栏只填数字，纬度两位度数加两位分，经度三位度数加两位分。</div>';}
+    h+='<div class="term dim">已载入参考点：第七码头 E118°15′　第八码头（编号已撤销，纬度不进公开库）</div>';
+  }else{
+    h+='<div class="term">';
+    h+='<span class="warn">> 匹配成功</span>\n';
+    h+='> 输入：N35°07′ / E118°19′\n';
+    h+='> 交点：第八码头旧泊位外海 0.31 海里（约 574 米）\n';
+    h+='> 水深：4.2 m　底质：砂泥　系泊桩：4 根，1986 年施工\n';
+    h+='> 该点位未列入任何航行通告，无灯标，无 VTS 覆盖\n';
+    h+='</div>';
+    h+='<div class="term">';
+    h+='<span class="dim">> 推理链复核</span>\n';
+    h+='19:34 真实满潮，19:34 至 19:41 B 区断电七分钟。\n';
+    h+='潮汐表被提前四十分钟，对外说法是 18:54 已经退潮。\n';
+    h+='B-14 通道尽头没有摄像头，第八码头没有编号。\n';
+    h+='沈砚舟 19:28 进港，19:36 在通道里按下最后一次快门。\n';
+    h+='照片只剩经度，纬度被删掉，因为它指向的点不在任何编号泊位里。\n';
+    h+='\n';
+    h+='他不是失踪。他知道水什么时候涨，也知道谁在等那一刻。\n';
+    h+='</div>';
+    h+='<div class="okbox">案件 07-0314 结案：第七码头没有潮汐，只有一份被改早四十分钟的潮汐表，和一条没人看守的通道。</div>';
+    h+=renderAppendix();
+    h+='<div class="row"><button class="btn" data-act="reset" style="flex:1">重新调查</button></div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ================= 卷宗附页 · 沈砚舟那晚的复盘 ================= */
+function renderAppendix(){
+  var h='<div class="apx">';
+  h+='<div class="apxhead">';
+  h+='<div class="t1">卷宗附页 · 第七码头</div>';
+  h+='<div class="t2">调取时间 2019-03-17 02:41　记录人：沈砚舟（未提交）</div>';
+  h+='</div>';
+  h+='<div class="apxbody">';
+
+  h+='<div class="tl"><span class="tm">19:05</span><span class="tx">我在局里抄了一遍潮汐表，抄完发现<b>它比我自己算的早了四十分钟</b>。不是笔误，是整页往后挪了一格，挪得很整齐，会出错的人不会错得这么整齐。</span></div>';
+
+  h+='<div class="tl"><span class="tm">19:21</span><span class="tx">跟值班的说了一声就出来了。没报备，报备了这件事今晚就不用查了。风很大，气压计挂在腰上，读数掉得比预报快，<b>水会来得比写在纸上的更早</b>。</span></div>';
+
+  h+='<div class="tl"><span class="tm">19:28</span><span class="tx">进港。第七码头人不多，靠泊记录上写着两辆车，不是渔车。我在柱子后面站了一会儿，听见有人提到"这一趟赶潮"。<b>赶潮的意思，从来不是出海。</b></span></div>';
+
+  h+='<div class="tl"><span class="tm">19:34</span><span class="tx">灯灭了。不是坏了，是断了。<b>B 区整片停在 19:34</b>，正好压在真实满潮上。给外人看的时间是 18:54 已经退潮，谁在这个点还站在码头，谁就是不该在这里的人。</span></div>';
+
+  h+='<div class="tl"><span class="tm">19:36</span><span class="tx">B-14 通道的尽头没有摄像头。我数了七步，墙上有新刮的灰。快门按下去的时候我用了闪光，我知道这会暴露自己，<b>但这张照片必须有</b>。</span></div>';
+
+  h+='<div class="tl"><span class="tm">19:38</span><span class="tx">回程时被拦住了。他们只删了照片里的一半，留下了经度，抹了纬度。<b>他们以为坐标少一半就不成坐标</b>，可他们不知道经度本身就在说话：E118°19′ 往南推三海里，那里没有编号。</span></div>';
+
+  h+='<div class="tl"><span class="tm">19:47</span><span class="tx">我绕到废弃灯塔。终端离线十一年，但本地缓存还能读。我把两个数写进去：<b>纬度 3507，经度 11819</b>。谁能同时填对两栏，谁就会看到那个点。</span></div>';
+
+  h+='<div class="tl"><span class="tm">19:52</span><span class="tx">删掉终端里的登录记录。留下气压计和那张帖子，气压计底座上刻 N35°07′，写死一半，剩下的让人自己找。这不是故弄玄虚，<b>是我只在确定有人会接着往下找的时候才敢留下半句</b>。</span></div>';
+
+  h+='<div class="apxend">';
+  h+='最后一行没有写完。记录在这一句中间停住了：<br>';
+  h+='「如果有人在 03-17 之后打开这份附页，说明两件事，<em>一是我留的数对了</em>；<em>二是那一晚的水，确实没有人替我作证</em>。」';
+  h+='</div>';
+
+  h+='</div>';
+  h+='</div>';
+  return h;
+}
+
+/* ================= 交互 ================= */
+function norm(s){return (s||'').toUpperCase().replace(/[\s　]/g,'').replace(/[′’`]/g,"'").replace(/°/g,'');}
+
+/* 坐标规范化：全角转半角，容忍空格、符号、方向字母，统一成 35°07′ 这种形状
+   纯数字输入时按末两位自动切成“分”：3507 -> 35°07′、11819 -> 118°19′ */
+function normDMS(s){
+  var v=(s||'');
+  v=v.replace(/[Ａ-Ｚａ-ｚ０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-65248);});
+  v=v.replace(/[　\s]/g,'').toUpperCase();
+  v=v.replace(/[°º˚度]/g,'°');
+  v=v.replace(/[′’‘`´分]/g,'′');
+  v=v.replace(/[″”"秒]/g,'″');
+  var dir=(v.match(/[NSEW]/)||[''])[0];
+  var d=v.replace(/[^0-9]/g,'');
+  if(!d)return '';
+  var deg=d,min='';
+  if(v.indexOf('°')>=0){
+    var m=v.match(/(\d+)°(\d{0,2})/);
+    if(m){deg=m[1];min=m[2]||'';}
+  }
+  if(min===''){
+    if(deg.length>=4){min=deg.slice(-2);deg=deg.slice(0,-2);}
+    else{min='00';}
+  }
+  deg=String(parseInt(deg,10));
+  min=('0'+min).slice(-2);
+  return dir+deg+'°'+min+'′';
+}
+
+/* 坐标判定：kind 为 lat / lon。纯数字、带方向、带度分符号都认，方向写反则不算 */
+function coordHit(raw,kind){
+  var t=normDMS(raw);
+  if(!t)return false;
+  var dir=t.charAt(0);
+  var body=t.replace(/^[NSEW]/,'');
+  if(kind==='lat'){
+    if(dir==='E'||dir==='W')return false;
+    return body==='35°07′';
+  }
+  if(dir==='N'||dir==='S')return false;
+  return body==='118°19′';
+}
+
+document.addEventListener('click',function(e){
+  var t=e.target;
+  while(t&&t!==document&&!(t.getAttribute&&t.getAttribute('data-act'))){t=t.parentNode;}
+  if(!t||t===document)return;
+  var act=t.getAttribute('data-act');
+
+  if(act==='noop'){toast('该页面不在存档范围内');return;}
+  if(act==='lock'){
+    toast('这里还没线索能进去');
+    return;
+  }
+  if(act==='ev'){
+    var evid=t.getAttribute('data-ev');
+    if(!evid){return;}
+    if(collectEv(evid)){
+      paint(false);
+    }else{
+      toast(EVTIP[evid]||'这条物证还拿不到');
+    }
+    return;
+  }
+  if(act==='go'){go(t.getAttribute('data-site'));return;}
+  if(act==='peek'){
+    var id=t.getAttribute('data-ev');
+    for(var i=0;i<EVID.length;i++){if(EVID[i][0]===id){toast(EVID[i][1]+' · '+EVID[i][2]);break;}}
+    return;
+  }
+  if(act==='cmt2'){
+    if(!st.reveals.cmt2){st.reveals.cmt2=true;save();toast('评论已展开');unlockSite('weather');paint(false);}
+    return;
+  }
+  if(act==='cmt3'){
+    if(!st.reveals.cmt3){st.reveals.cmt3=true;save();toast('评论已展开');unlockSite('notice');paint(false);}
+    return;
+  }
+  if(act==='cmt4'){
+    if(!st.reveals.cmt4){st.reveals.cmt4=true;save();toast('评论已展开');paint(false);}
+    return;
+  }
+  /* 红鱼：看着像线索，点开才知道是错的。点过一次就记住，不再重复提醒 */
+  if(act==='rh'){
+    var tip=t.getAttribute('data-tip')||'这条对不上';
+    toast(tip);
+    return;
+  }
+  if(act==='wlogin'){
+    var uid=(st.fields.uid||'').toLowerCase().replace(/\s/g,'');
+    var pw=(st.fields.pw||'').replace(/\s/g,'');
+    if(uid==='syz2019'&&pw==='170427'){
+      st.reveals.wlogin=true;st.err=0;save();
+      unlockSite('archive');unlockSite('port');
+      toast('登录成功 · 观测记录已调取');
+      paint(false);
+    }else{
+      st.err=(st.err||0)+1;save();
+      toast('工号或密码错误');
+      paint(false);
+    }
+    return;
+  }
+  if(act==='asearch'){
+    var kw=(st.fields.kw||'').toLowerCase().replace(/[\s\-_]/g,'');
+    if(/b14|检修|停电|通道|0314|潮汐|泊位/.test(kw)&&kw.length>0){
+      st.reveals.arc=true;st.reveals.arcErr=false;save();
+      unlockSite('blog');
+      toast('命中 1 条卷宗');
+      paint(false);
+    }else{
+      st.reveals.arcErr=true;st.reveals.arc=false;save();
+      toast('未检索到卷宗');
+      paint(false);
+    }
+    return;
+  }
+  if(act==='portrec'){
+    st.reveals.prt=true;save();
+    unlockSite('forum');
+    toast('靠泊记录已调取');
+    paint(false);
+    return;
+  }
+  if(act==='exif'){
+    st.reveals.exif=true;save();
+    toast('元数据已解析');
+    paint(false);
+    return;
+  }
+  if(act==='fopen'){
+    var p=(st.fields.pw2||'').replace(/\s/g,'');
+    if(p==='1942'){
+      st.reveals.frm=true;st.reveals.frmErr=false;save();
+      unlockSite('lh');
+      toast('附件解压成功');
+      paint(false);
+    }else{
+      st.reveals.frmErr=true;st.err2=(st.err2||0)+1;save();
+      toast('密码错误');
+      paint(false);
+    }
+    return;
+  }
+  if(act==='lhcheck'){
+    var okL=coordHit(st.fields.lat,'lat'),okO=coordHit(st.fields.lon,'lon');
+    if(okL&&okO){
+      st.reveals.lhErr=false;
+      st.reveals.final=true;
+      st.reveals.lh=true;
+      save();
+      if(addEv('e10')){toast('物证归档 · 双坐标交点');}
+      toast('坐标匹配成功');
+      paint(false);
+    }else{
+      st.reveals.lhErr=true;save();
+      toast((st.fields.lat||st.fields.lon)?'坐标匹配失败':'纬度 / 经度 均需填写');
+      paint(false);
+    }
+    return;
+  }
+  if(act==='reset'){
+    doReset();
+    return;
+  }
+  if(act==='rst'){
+    var rb=document.getElementById('btnReset');
+    if(rb&&rb.classList.contains('arm')){doReset();}
+    else{armReset();toast('再点一次确认清空进度');}
+    return;
+  }
+},false);
+
+document.addEventListener('input',function(e){
+  var f=e.target.getAttribute&&e.target.getAttribute('data-f');
+  if(f){st.fields[f]=e.target.value;save();}
+},false);
+
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  var id=e.target.getAttribute&&e.target.getAttribute('data-enter');
+  if(id){var b=document.getElementById(id);if(b){e.preventDefault();b.click();}}
+},false);
+
+/* ================= 时钟 ================= */
+function clock(){
+  var d=new Date(),h=d.getHours(),m=d.getMinutes();
+  document.getElementById('clock').textContent=(h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+}
+clock();setInterval(clock,20000);
+
+/* ================= 启动 ================= */
+paint(true);
+
+})();
+</script>
+</body>
+</html>
